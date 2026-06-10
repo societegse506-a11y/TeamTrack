@@ -36,7 +36,7 @@ class WorkSettings {
     required this.gpsRadius,
     required this.workingDays,
     WorkplaceLocation? workplaceLocation,
-    this.timezone = 'Africa/Tunis',
+    this.timezone = 'UTC',
   }) : workplaceLocation = workplaceLocation ?? WorkplaceLocation();
 
   factory WorkSettings.fromJson(Map<String, dynamic> json) {
@@ -54,7 +54,7 @@ class WorkSettings {
       workplaceLocation: json['workplaceLocation'] != null
           ? WorkplaceLocation.fromJson(json['workplaceLocation'] as Map<String, dynamic>)
           : null,
-      timezone: json['timezone'] ?? 'Africa/Tunis',
+      timezone: json['timezone'] ?? 'UTC',
     );
   }
 

@@ -951,6 +951,6 @@ class _TimezonePicker extends StatelessWidget {
     final region = tz.split('/').first;
     final match = _timezones.where((t) => t.startsWith('$region/')).toList();
     if (match.isNotEmpty) return match.first;
-    return 'Africa/Tunis';
+    return 'UTC';
   }
 }
