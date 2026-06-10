@@ -215,8 +215,8 @@ exports.forgotPassword = async (req, res) => {
   port: 587,
   secure: false, // false pour le port 587
   auth: {
-    user: process.env.EMAIL_USER, // Sera injecté automatiquement par Render
-    pass: process.env.EMAIL_PASS  // Sera injecté automatiquement par Render
+    user: "ae4ad6001@smtp-brevo.com", // Sera injecté automatiquement par Render
+    pass: "xsmtpsib-59b5cb5e53867105c46fd7e86a5130f34f8cba2828dc5699344a4652cc3c48a0-CnPRjww0HzvVhl6d"  // Sera injecté automatiquement par Render
   }
 });
 
