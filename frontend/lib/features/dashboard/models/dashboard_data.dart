@@ -69,6 +69,8 @@ class DashboardData {
   final int afternoonPresent;
   final int afternoonLate;
   final AttendanceConfig? config;
+  final double workplaceLat;
+  final double workplaceLng;
 
   final int totalPresent;
   final int totalLate;
@@ -92,6 +94,8 @@ class DashboardData {
     required this.afternoonPresent,
     required this.afternoonLate,
     this.config,
+    this.workplaceLat = 0.0,
+    this.workplaceLng = 0.0,
     this.totalPresent = 0,
     this.totalLate = 0,
     this.totalAbsent = 0,

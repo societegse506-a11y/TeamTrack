@@ -45,10 +45,18 @@ class DashboardService {
       lateToleranceMinutes: 15,
     );
 
+    double workplaceLat = 0.0;
+    double workplaceLng = 0.0;
+
     if (settingsRes != null) {
       try {
-        config = AttendanceConfig.fromJson(
-            settingsRes['data'] as Map<String, dynamic>? ?? settingsRes);
+        final settingsData = settingsRes['data'] as Map<String, dynamic>? ?? settingsRes;
+        config = AttendanceConfig.fromJson(settingsData);
+        final wl = settingsData['workplaceLocation'] as Map<String, dynamic>?;
+        if (wl != null) {
+          workplaceLat = (wl['lat'] as num?)?.toDouble() ?? 0.0;
+          workplaceLng = (wl['lng'] as num?)?.toDouble() ?? 0.0;
+        }
       } catch (e) {
         debugPrint('Dashboard: settings parse error — $e');
       }
@@ -105,6 +113,8 @@ class DashboardService {
       afternoonPresent: todayAfternoonPresent,
       afternoonLate: todayAfternoonLate,
       config: config,
+      workplaceLat: workplaceLat,
+      workplaceLng: workplaceLng,
       totalPresent: totalPresent,
       totalLate: totalLate,
       totalAbsent: totalAbsent,

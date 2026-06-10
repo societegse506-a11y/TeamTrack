@@ -13,7 +13,6 @@ import '../../../theme/app_colors.dart';
 import '../../statistics/widgets/overview_cards.dart';
 import '../../statistics/widgets/monthly_chart.dart';
 import '../../statistics/widgets/member_stats_list.dart';
-import '../../auth/services/location_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -28,28 +27,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   DashboardData? _data;
   bool _isLoading = true;
   String? _error;
-  double _currentLat = 0.0;
-  double _currentLng = 0.0;
 
   @override
   void initState() {
     super.initState();
     _load();
-    _loadCurrentLocation();
     attendanceRefreshNotifier.addListener(_onRefreshNeeded);
     memberRefreshNotifier.addListener(_onRefreshNeeded);
-  }
-
-  Future<void> _loadCurrentLocation() async {
-    try {
-      final position = await LocationService().getCurrentLocation();
-      if (mounted) {
-        setState(() {
-          _currentLat = position.latitude;
-          _currentLng = position.longitude;
-        });
-      }
-    } catch (_) {}
   }
 
   @override
@@ -524,24 +508,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: WorkplaceMap(
-                      workplaceLat: data.user?.lat ?? 0.0,
-                      workplaceLng: data.user?.lng ?? 0.0,
-                      currentLat: _currentLat,
-                      currentLng: _currentLng,
+                    child: WorkplaceLocationMap(
+                      lat: data.workplaceLat,
+                      lng: data.workplaceLng,
                       label: 'Workplace Location',
                     ),
                   ),
                   SizedBox(width: gridSpacing),
-                  Expanded(
-                    child: WorkplaceMap(
-                      workplaceLat: data.user?.lat ?? 0.0,
-                      workplaceLng: data.user?.lng ?? 0.0,
-                      currentLat: _currentLat,
-                      currentLng: _currentLng,
-                      label: 'My Position',
-                      showCurrentLocation: true,
-                    ),
+                  const Expanded(
+                    child: CurrentPositionMap(),
                   ),
                 ],
               ),
@@ -549,21 +524,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
           else ...[
             Padding(
               padding: EdgeInsets.symmetric(horizontal: hp),
-              child: WorkplaceMap(
-                workplaceLat: data.user?.lat ?? 0.0,
-                workplaceLng: data.user?.lng ?? 0.0,
-                currentLat: _currentLat,
-                currentLng: _currentLng,
+              child: WorkplaceLocationMap(
+                lat: data.workplaceLat,
+                lng: data.workplaceLng,
                 label: 'Workplace Location',
               ),
             ),
             const SizedBox(height: 12),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: hp),
-              child: LocationMapWidget(
-                workplaceLat: data.user?.lat ?? 0.0,
-                workplaceLng: data.user?.lng ?? 0.0,
-              ),
+              child: const CurrentPositionMap(),
             ),
           ],
           SizedBox(height: sectionSpacing),
