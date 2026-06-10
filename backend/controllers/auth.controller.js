@@ -210,16 +210,19 @@ exports.forgotPassword = async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     // 3. Configuration du transporteur de mail
-    const transporter = nodemailer.createTransport({
-     host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // Utilise SSL
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  },
+  // FORCE LE SYSTÈME À IGNORER L'IPv6 ET PASSER PAR L'IPv4
+  connectionTimeout: 10000, // Évite d'attendre trop longtemps si le réseau sature
+  greetingTimeout: 10000,
+  dnsTimeout: 10000
+});
     // 4. ENVOI DE L'EMAIL EN ARRIÈRE-PLAN (ASYNCHRONE SANS AWAIT)
     // On retire le "await" pour libérer instantanément la requête HTTP
     console.log(`[Email] Tentative d'envoi du code à ${user.email}...`);
