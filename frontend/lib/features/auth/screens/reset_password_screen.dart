@@ -16,7 +16,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _codeController = TextEditingController();
-  final _tokenController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _apiService = ApiService();
@@ -26,7 +25,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   void dispose() {
     _emailController.dispose();
     _codeController.dispose();
-    _tokenController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
