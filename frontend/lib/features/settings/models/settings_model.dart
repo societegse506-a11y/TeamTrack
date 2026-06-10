@@ -46,7 +46,7 @@ class WorkSettings {
       afternoonStart: json['afternoonStart'] ?? '14:00',
       afternoonEnd: json['afternoonEnd'] ?? '18:00',
       lateToleranceMinutes: (json['lateToleranceMinutes'] as num?)?.toInt() ?? 15,
-      gpsRadius: (json['gpsRadius'] as num?)?.toInt() ?? 100,
+      gpsRadius: (json['gpsRadius'] as num?)?.toInt() ?? 500,
       workingDays: (json['workingDays'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??

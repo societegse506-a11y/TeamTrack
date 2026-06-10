@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/settings_model.dart';
 import '../services/settings_service.dart';
@@ -499,54 +501,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 16),
             if (hasLocation) ...[
-              Container(
-                width: double.infinity,
-                height: 160,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.grey.shade100,
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Image.network(
-                      'https://staticmap.openstreetmap.de/staticmap.php'
-                      '?center=${loc.lat},${loc.lng}'
-                      '&zoom=15&size=400x200'
-                      '&markers=${loc.lat},${loc.lng},red-pushpin',
-                      width: double.infinity,
-                      height: 160,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.map, size: 48, color: Colors.grey.shade400),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Map preview unavailable',
-                            style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 160,
+                  child: FlutterMap(
+                    options: MapOptions(
+                      initialCenter: LatLng(loc.lat!, loc.lng!),
+                      initialZoom: 15.0,
+                    ),
+                    children: [
+                      TileLayer(
+                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        userAgentPackageName: 'com.teamtrack.app',
+                      ),
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            point: LatLng(loc.lat!, loc.lng!),
+                            width: 40,
+                            height: 40,
+                            child: const Icon(Icons.business, color: AppColors.primary, size: 32),
                           ),
                         ],
                       ),
-                      loadingBuilder: (_, child, progress) {
-                        if (progress == null) return child;
-                        return const Center(child: CircularProgressIndicator(strokeWidth: 2));
-                      },
-                    ),
-                    Positioned(
-                      bottom: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(Icons.open_in_new, size: 14, color: Colors.white),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 12),

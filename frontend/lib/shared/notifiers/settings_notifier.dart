@@ -13,7 +13,7 @@ class SettingsNotifier extends ValueNotifier<WorkSettings> {
           afternoonStart: '14:00',
           afternoonEnd: '18:00',
           lateToleranceMinutes: 15,
-          gpsRadius: 100,
+          gpsRadius: 500,
           workingDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
         ));
 
