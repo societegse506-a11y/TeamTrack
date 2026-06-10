@@ -283,18 +283,9 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
                 ),
               ),
               const SizedBox(height: 4),
-              Row(
-                children: [
-                  _Badge(
-                    label: _member.isAdmin ? 'Admin' : 'Member',
-                    color: _member.isAdmin ? Colors.blue : AppColors.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  _Badge(
-                    label: _member.isActive ? 'Active' : 'Inactive',
-                    color: _member.isActive ? AppColors.success : Colors.grey,
-                  ),
-                ],
+              Text(
+                _member.description.isNotEmpty ? _member.description : 'Team Member',
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
               ),
             ],
           ),
@@ -636,32 +627,6 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
           ),
         );
       }).toList(),
-    );
-  }
-}
-
-class _Badge extends StatelessWidget {
-  final String label;
-  final Color color;
-
-  const _Badge({required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withAlpha(20),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
-      ),
     );
   }
 }

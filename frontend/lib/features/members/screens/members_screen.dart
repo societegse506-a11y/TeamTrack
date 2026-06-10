@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/member.dart';
 import '../services/member_service.dart';
 import '../widgets/member_card.dart';
-import '../widgets/filter_chips.dart';
 import '../widgets/delete_confirm_dialog.dart';
 import 'member_form_screen.dart';
 import 'member_detail_screen.dart';
@@ -26,7 +25,7 @@ class _MembersScreenState extends State<MembersScreen> {
   List<Member> _filteredMembers = [];
   bool _isLoading = true;
   String? _error;
-  MemberFilter _selectedFilter = MemberFilter.all;
+
 
   final Set<String> _frequentLateIds = {};
 
@@ -83,24 +82,12 @@ class _MembersScreenState extends State<MembersScreen> {
             !m.telephone.contains(query)) {
           return false;
         }
-        switch (_selectedFilter) {
-          case MemberFilter.all:
-            return true;
-          case MemberFilter.active:
-            return m.isActive;
-          case MemberFilter.inactive:
-            return !m.isActive;
-          case MemberFilter.admin:
-            return m.isAdmin;
-        }
+        return true;
       }).toList();
     });
   }
 
-  void _onFilterChanged(MemberFilter filter) {
-    _selectedFilter = filter;
-    _applyFilters();
-  }
+
 
   void _onSearchChanged(String query) {
     _applyFilters();
@@ -209,11 +196,7 @@ class _MembersScreenState extends State<MembersScreen> {
                   ),
                 ),
               ),
-              FilterChips(
-                selected: _selectedFilter,
-                onChanged: _onFilterChanged,
-              ),
-              const SizedBox(height: 4),
+
             ],
             Expanded(child: _buildBody(isWide, hp)),
           ],

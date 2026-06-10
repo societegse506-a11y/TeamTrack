@@ -6,12 +6,14 @@ import '../widgets/session_card.dart';
 import '../widgets/quick_actions_card.dart';
 import '../../../shared/widgets/state_widgets.dart';
 import '../../../shared/widgets/loading_indicator.dart';
+import '../../../shared/widgets/workplace_map.dart';
 import '../../../shared/notifiers/attendance_notifier.dart';
 import '../../../shared/notifiers/member_notifier.dart';
 import '../../../theme/app_colors.dart';
 import '../../statistics/widgets/overview_cards.dart';
 import '../../statistics/widgets/monthly_chart.dart';
 import '../../statistics/widgets/member_stats_list.dart';
+import '../../auth/services/location_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -26,13 +28,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
   DashboardData? _data;
   bool _isLoading = true;
   String? _error;
+  double _currentLat = 0.0;
+  double _currentLng = 0.0;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _loadCurrentLocation();
     attendanceRefreshNotifier.addListener(_onRefreshNeeded);
     memberRefreshNotifier.addListener(_onRefreshNeeded);
+  }
+
+  Future<void> _loadCurrentLocation() async {
+    try {
+      final position = await LocationService().getCurrentLocation();
+      if (mounted) {
+        setState(() {
+          _currentLat = position.latitude;
+          _currentLng = position.longitude;
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -485,6 +502,70 @@ class _DashboardScreenState extends State<DashboardScreen> {
             padding: EdgeInsets.symmetric(horizontal: hp),
             child: QuickActionsCard(onAnalytics: _scrollToAnalytics),
           ),
+          SizedBox(height: sectionSpacing),
+
+          // === Location Section ===
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: hp + 4),
+            child: Row(
+              children: [
+                Icon(Icons.map_rounded, color: theme.colorScheme.primary, size: 20),
+                const SizedBox(width: 8),
+                Text('Location',
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+              ],
+            ),
+          ),
+          SizedBox(height: isWide ? 16 : 12),
+          if (isWide)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: hp),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: WorkplaceMap(
+                      workplaceLat: data.user?.lat ?? 0.0,
+                      workplaceLng: data.user?.lng ?? 0.0,
+                      currentLat: _currentLat,
+                      currentLng: _currentLng,
+                      label: 'Workplace Location',
+                    ),
+                  ),
+                  SizedBox(width: gridSpacing),
+                  Expanded(
+                    child: WorkplaceMap(
+                      workplaceLat: data.user?.lat ?? 0.0,
+                      workplaceLng: data.user?.lng ?? 0.0,
+                      currentLat: _currentLat,
+                      currentLng: _currentLng,
+                      label: 'My Position',
+                      showCurrentLocation: true,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else ...[
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: hp),
+              child: WorkplaceMap(
+                workplaceLat: data.user?.lat ?? 0.0,
+                workplaceLng: data.user?.lng ?? 0.0,
+                currentLat: _currentLat,
+                currentLng: _currentLng,
+                label: 'Workplace Location',
+              ),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: hp),
+              child: LocationMapWidget(
+                workplaceLat: data.user?.lat ?? 0.0,
+                workplaceLng: data.user?.lng ?? 0.0,
+              ),
+            ),
+          ],
           SizedBox(height: sectionSpacing),
 
           // === Analytics Section ===

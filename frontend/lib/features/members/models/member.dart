@@ -4,8 +4,6 @@ class Member {
   final String prenom;
   final String email;
   final String telephone;
-  final String role;
-  final String status;
   final String description;
 
   Member({
@@ -14,8 +12,6 @@ class Member {
     required this.prenom,
     required this.email,
     required this.telephone,
-    this.role = 'member',
-    this.status = 'active',
     this.description = '',
   });
 
@@ -26,8 +22,6 @@ class Member {
       prenom: json['prenom'] ?? '',
       email: json['email'] ?? '',
       telephone: json['telephone'] ?? '',
-      role: json['role'] ?? 'member',
-      status: json['status'] ?? 'active',
       description: json['description'] ?? '',
     );
   }
@@ -38,8 +32,6 @@ class Member {
       'prenom': prenom,
       'email': email,
       'telephone': telephone,
-      'role': role,
-      'status': status,
       'description': description,
     };
   }
@@ -51,7 +43,4 @@ class Member {
     final n = nom.isNotEmpty ? nom[0] : '';
     return '$p$n'.toUpperCase();
   }
-
-  bool get isActive => status == 'active';
-  bool get isAdmin => role == 'admin';
 }

@@ -21,30 +21,8 @@ class MemberCard extends StatelessWidget {
   });
 
   Color get _accentColor {
-    if (member.isAdmin) return Colors.blue;
     if (isLateFrequent) return AppColors.warning;
-    if (member.isActive) return AppColors.success;
-    return Colors.grey;
-  }
-
-  String get _roleLabel {
-    if (member.isAdmin) return 'Admin';
-    if (isLateFrequent) return 'Frequent Late';
-    return 'Active';
-  }
-
-  Color get _roleBadgeColor {
-    if (member.isAdmin) return Colors.blue;
-    if (isLateFrequent) return AppColors.warning;
-    if (member.isActive) return AppColors.success;
-    return Colors.grey;
-  }
-
-  Color get _roleBadgeBg {
-    if (member.isAdmin) return Colors.blue.withAlpha(20);
-    if (isLateFrequent) return AppColors.warning.withAlpha(20);
-    if (member.isActive) return AppColors.success.withAlpha(20);
-    return Colors.grey.withAlpha(20);
+    return AppColors.primary;
   }
 
   @override
@@ -60,7 +38,6 @@ class MemberCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Accent top bar
           Container(height: 4, color: _accentColor),
           InkWell(
             borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
@@ -69,7 +46,6 @@ class MemberCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
               child: Row(
                 children: [
-                  // Avatar
                   CircleAvatar(
                     radius: 26,
                     backgroundColor: _accentColor.withAlpha(20),
@@ -83,7 +59,6 @@ class MemberCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 14),
-                  // Info
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,43 +75,23 @@ class MemberCard extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            // Role/status badge
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: _roleBadgeBg,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                _roleLabel,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: _roleBadgeColor,
-                                ),
-                              ),
-                            ),
-                            if (!member.isActive) ...[
-                              const SizedBox(width: 4),
+                            if (isLateFrequent) ...[
+                              const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
                                   vertical: 3,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.withAlpha(20),
+                                  color: AppColors.warning.withAlpha(20),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  'Inactive',
+                                  'Frequent Late',
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.grey.shade600,
+                                    color: AppColors.warning,
                                   ),
                                 ),
                               ),
@@ -177,7 +132,6 @@ class MemberCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // Action buttons
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

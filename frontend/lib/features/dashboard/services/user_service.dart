@@ -13,6 +13,7 @@ class UserService {
       'prenom': user.prenom,
       'email': user.email,
       'telephone': user.telephone,
+      'position': {'lat': user.lat, 'lng': user.lng},
     }));
   }
 

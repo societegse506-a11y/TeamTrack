@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../../../navigation/auth_notifier.dart';
 import '../../../shared/widgets/auth_text_field.dart';
@@ -21,6 +22,29 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _apiService = ApiService();
   bool _isLoading = false;
+  bool _rememberMe = false;
+
+  static const _rememberEmailKey = 'remember_email';
+  static const _rememberPasswordKey = 'remember_password';
+  static const _rememberMeKey = 'remember_me';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getBool(_rememberMeKey) ?? false;
+    if (saved) {
+      final email = prefs.getString(_rememberEmailKey) ?? '';
+      final password = prefs.getString(_rememberPasswordKey) ?? '';
+      _emailController.text = email;
+      _passwordController.text = password;
+      if (mounted) setState(() => _rememberMe = true);
+    }
+  }
 
   @override
   void dispose() {
@@ -39,6 +63,17 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailController.text.trim(),
         _passwordController.text,
       );
+
+      final prefs = await SharedPreferences.getInstance();
+      if (_rememberMe) {
+        await prefs.setString(_rememberEmailKey, _emailController.text.trim());
+        await prefs.setString(_rememberPasswordKey, _passwordController.text);
+        await prefs.setBool(_rememberMeKey, true);
+      } else {
+        await prefs.remove(_rememberEmailKey);
+        await prefs.remove(_rememberPasswordKey);
+        await prefs.remove(_rememberMeKey);
+      }
 
       if (!mounted) return;
       AuthNotifier.instance.refresh();
@@ -106,10 +141,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: _rememberMe,
+                          onChanged: (v) => setState(() => _rememberMe = v ?? false),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                        ),
+                        GestureDetector(
+                          onTap: () => setState(() => _rememberMe = !_rememberMe),
+                          child: Text('Se souvenir de moi', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+                        ),
+                        const Spacer(),
+                        TextButton(
                         onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -124,7 +169,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                    ),
+                    ],
+                  ),
                     const SizedBox(height: 8),
                     LoadingButton(
                       label: 'Se connecter',

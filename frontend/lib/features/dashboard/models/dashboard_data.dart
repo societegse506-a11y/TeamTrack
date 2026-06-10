@@ -6,6 +6,8 @@ class UserInfo {
   final String prenom;
   final String email;
   final String telephone;
+  final double lat;
+  final double lng;
 
   UserInfo({
     required this.id,
@@ -13,15 +15,20 @@ class UserInfo {
     required this.prenom,
     required this.email,
     required this.telephone,
+    this.lat = 0.0,
+    this.lng = 0.0,
   });
 
   factory UserInfo.fromJson(Map<String, dynamic> json) {
+    final position = json['position'] as Map<String, dynamic>?;
     return UserInfo(
       id: json['_id'] ?? json['id'] ?? '',
       nom: json['nom'] ?? '',
       prenom: json['prenom'] ?? '',
       email: json['email'] ?? '',
       telephone: json['telephone'] ?? '',
+      lat: (position?['lat'] as num?)?.toDouble() ?? 0.0,
+      lng: (position?['lng'] as num?)?.toDouble() ?? 0.0,
     );
   }
 

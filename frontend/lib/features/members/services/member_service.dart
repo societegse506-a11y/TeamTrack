@@ -35,8 +35,6 @@ class MemberService {
     required String prenom,
     required String email,
     required String telephone,
-    String role = 'member',
-    String status = 'active',
     String description = '',
   }) async {
     final response = await ApiClient.post(_prefix, body: {
@@ -44,8 +42,6 @@ class MemberService {
       'prenom': prenom,
       'email': email,
       'telephone': telephone,
-      'role': role,
-      'status': status,
       if (description.isNotEmpty) 'description': description,
     });
     final data = _handleResponse(response);
@@ -58,8 +54,6 @@ class MemberService {
     required String prenom,
     required String email,
     required String telephone,
-    String? role,
-    String? status,
     String? description,
   }) async {
     final body = <String, dynamic>{
@@ -68,8 +62,6 @@ class MemberService {
       'email': email,
       'telephone': telephone,
     };
-    if (role != null) body['role'] = role;
-    if (status != null) body['status'] = status;
     if (description != null) body['description'] = description;
     final response = await ApiClient.put('$_prefix/$id', body: body);
     final data = _handleResponse(response);

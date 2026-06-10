@@ -5,6 +5,8 @@ import '../../../shared/widgets/auth_text_field.dart';
 import '../../../shared/widgets/password_field.dart';
 import '../../../shared/widgets/loading_button.dart';
 import '../../../shared/widgets/auth_header.dart';
+import '../../dashboard/models/dashboard_data.dart';
+import '../../dashboard/services/user_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -43,7 +45,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       final position = await _locationService.getCurrentLocation();
 
-      await _apiService.register(
+      final result = await _apiService.register(
         nom: _nomController.text.trim(),
         prenom: _prenomController.text.trim(),
         email: _emailController.text.trim(),
@@ -52,6 +54,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         lat: position.latitude,
         lng: position.longitude,
       );
+
+      final userData = result['data'] ?? result;
+      final userInfo = UserInfo(
+        id: userData['_id'] ?? userData['id'] ?? '',
+        nom: userData['nom'] ?? '',
+        prenom: userData['prenom'] ?? '',
+        email: userData['email'] ?? '',
+        telephone: userData['telephone'] ?? '',
+        lat: position.latitude,
+        lng: position.longitude,
+      );
+      await UserService.saveUser(userInfo);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

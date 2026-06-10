@@ -215,7 +215,7 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
                       const SizedBox(height: 16),
                       _Field(
                         controller: _descriptionController,
-                        label: 'role: Membre | Admin',
+                        label: 'Description (optional)',
                         icon: Icons.info_outline,
                         keyboardType: TextInputType.text,
                         validator: null,
