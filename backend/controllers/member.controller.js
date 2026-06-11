@@ -3,15 +3,13 @@ const Attendance = require("../models/Attendance");
 
 exports.createMember = async (req, res) => {
   try {
-    const { nom, prenom, email, telephone, role, status } = req.body;
+    const { nom, prenom, email, telephone } = req.body;
 
     const member = await Member.create({
       nom,
       prenom,
       email,
       telephone,
-      role: role || "member",
-      status: status || "active",
       createdBy: req.user.id
     });
 
@@ -113,7 +111,7 @@ exports.deleteMember = async (req, res) => {
 exports.updateMember = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nom, prenom, email, telephone, role, status } = req.body;
+    const { nom, prenom, email, telephone } = req.body;
 
     const member = await Member.findOne({
       _id: id,
@@ -131,8 +129,6 @@ exports.updateMember = async (req, res) => {
     member.prenom = prenom || member.prenom;
     member.email = email != null ? email : member.email;
     member.telephone = telephone || member.telephone;
-    if (role != null) member.role = role;
-    if (status != null) member.status = status;
 
     await member.save();
 
