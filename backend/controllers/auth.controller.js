@@ -207,18 +207,17 @@ exports.forgotPassword = async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
+      host: "smtp-relay.brevo.com",
       port: 587,
       secure: false,
-      requireTLS: true,
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        user: process.env.BREVO_EMAIL,
+        pass: process.env.BREVO_SMTP_KEY
       }
     });
 
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: process.env.BREVO_EMAIL,
       to: user.email,
       subject: "Password Reset Code - TeamTrack",
       html: `
