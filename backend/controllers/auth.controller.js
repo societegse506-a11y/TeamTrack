@@ -2,7 +2,7 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
+const https = require("https");
 
 
 // ===============================
@@ -206,21 +206,11 @@ exports.forgotPassword = async (req, res) => {
     user.resetTokenExpire = Date.now() + 10 * 60 * 1000;
     await user.save({ validateBeforeSave: false });
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp-relay.brevo.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.BREVO_EMAIL,
-        pass: process.env.BREVO_SMTP_KEY
-      }
-    });
-
-    await transporter.sendMail({
-      from: process.env.BREVO_EMAIL,
-      to: user.email,
-      subject: "Password Reset Code - TeamTrack",
-      html: `
+    const emailData = JSON.stringify({
+      sender: { name: 'TeamTrack', email: process.env.BREVO_EMAIL },
+      to: [{ email: user.email }],
+      subject: 'Password Reset Code - TeamTrack',
+      htmlContent: `
         <div style="font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto;">
           <h2 style="color: #4F46E5;">Password Reset</h2>
           <p>You requested to reset your password.</p>
@@ -229,8 +219,33 @@ exports.forgotPassword = async (req, res) => {
             <span style="font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #4F46E5; background: #F3F4F6; padding: 12px 24px; border-radius: 12px;">${code}</span>
           </div>
           <p style="font-size: 12px; color: #999;">If you didn't request this, please ignore this email.</p>
-        </div>
-      `
+        </div>`
+    });
+
+    await new Promise((resolve, reject) => {
+      const req = https.request({
+        hostname: 'api.brevo.com',
+        path: '/v3/smtp/email',
+        method: 'POST',
+        headers: {
+          'api-key': process.env.BREVO_SMTP_KEY,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(emailData)
+        }
+      }, (res) => {
+        let body = '';
+        res.on('data', chunk => body += chunk);
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            resolve();
+          } else {
+            reject(new Error(`Brevo API error ${res.statusCode}: ${body}`));
+          }
+        });
+      });
+      req.on('error', reject);
+      req.write(emailData);
+      req.end();
     });
 
     return res.status(200).json({
@@ -242,7 +257,7 @@ exports.forgotPassword = async (req, res) => {
     console.error("[Email Error]", error.message);
     return res.status(500).json({
       success: false,
-      message: "Failed to send email. Please check your email configuration and try again."
+      message: "Failed to send email: " + error.message
     });
   }
 };
