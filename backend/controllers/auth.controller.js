@@ -192,7 +192,6 @@ exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // 1. Vérification de l'utilisateur (Ultra rapide sur MongoDB)
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({
@@ -201,30 +200,24 @@ exports.forgotPassword = async (req, res) => {
       });
     }
 
-    // Generate 6-digit code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // 2. Sauvegarde du token en Base de données
     user.resetToken = code;
-    user.resetTokenExpire = Date.now() + 10 * 60 * 1000; // 10 min
+    user.resetTokenExpire = Date.now() + 10 * 60 * 1000;
     await user.save({ validateBeforeSave: false });
 
-    // 3. Configuration du transporteur de mail
-  const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false, // false pour le port 587
-  auth: {
-    user: process.env.EMAIL_USER, // Sera injecté automatiquement par Render
-    pass: process.env.EMAIL_PASS  // Sera injecté automatiquement par Render
-  }
-});
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
 
-    // 4. ENVOI DE L'EMAIL EN ARRIÈRE-PLAN (ASYNCHRONE SANS AWAIT)
-    // On retire le "await" pour libérer instantanément la requête HTTP
-    console.log(`[Email] Tentative d'envoi du code à ${user.email}...`);
-    
-    transporter.sendMail({
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
       to: user.email,
       subject: "Password Reset Code - TeamTrack",
       html: `
@@ -238,29 +231,18 @@ exports.forgotPassword = async (req, res) => {
           <p style="font-size: 12px; color: #999;">If you didn't request this, please ignore this email.</p>
         </div>
       `
-    }, (err, info) => {
-      // Ce bloc de fonction s'exécutera uniquement quand Google aura répondu,
-      // sans faire attendre votre application Flutter.
-      if (err) {
-        console.error("[Email Error] Échec de l'envoi du mail via Gmail :", err.message);
-      } else {
-        console.log("[Email Success] Mail envoyé avec succès ! Réponse Google :", info.response);
-      }
     });
 
-    // 5. RÉPONSE IMMÉDIATE AU CLIENT
-    // Postman et votre application Flutter reçoivent ça immédiatement !
     return res.status(200).json({
       success: true,
       message: "Verification code sent to your email"
     });
 
   } catch (error) {
-    console.error("[Server Error] Erreur générale dans forgotPassword :", error.message);
+    console.error("[Email Error]", error.message);
     return res.status(500).json({
       success: false,
-      message: "Server error",
-      error: error.message
+      message: "Failed to send email. Please check your email configuration and try again."
     });
   }
 };
