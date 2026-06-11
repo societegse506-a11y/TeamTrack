@@ -62,6 +62,19 @@ class DashboardService {
       }
     }
 
+    if (workplaceLat == 0.0 && workplaceLng == 0.0) {
+      workplaceLat = user.lat;
+      workplaceLng = user.lng;
+
+      if (user.lat != 0.0 && user.lng != 0.0 && settingsRes == null) {
+        try {
+          await ApiClient.postSafe('/settings', body: {
+            'workplaceLocation': {'lat': user.lat, 'lng': user.lng},
+          });
+        } catch (_) {}
+      }
+    }
+
     final d = dashRes?['data'] as Map<String, dynamic>? ?? {};
 
     final totalMembers = (d['totalMembers'] as num?)?.toInt() ?? 0;

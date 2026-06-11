@@ -42,9 +42,11 @@ class ApiService {
   }
 
   Future<void> forgotPassword(String email) async {
-    final response = await ApiClient.post('$_prefix/forgot-password', body: {
+    final response = await ApiClient.post('$_prefix/forgot-password',
+     body: {
       'email': email,
     });
+    
     _parseResponse(response);
   }
 

@@ -67,6 +67,7 @@ class WorkSettings {
         'gpsRadius': gpsRadius,
         'workingDays': workingDays,
         'timezone': timezone,
+        'workplaceLocation': workplaceLocation.toJson(),
       };
 
   WorkSettings copyWith({

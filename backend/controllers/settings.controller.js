@@ -21,9 +21,14 @@ exports.upsertSettings = async (req, res) => {
 
     if (!settings) {
       const user = await User.findById(userId);
-      const workplaceLocation = user?.position
-        ? { lat: user.position.lat, lng: user.position.lng }
-        : { lat: null, lng: null };
+      let workplaceLocation;
+      if (req.body.workplaceLocation) {
+        workplaceLocation = req.body.workplaceLocation;
+      } else {
+        workplaceLocation = user?.position
+          ? { lat: user.position.lat, lng: user.position.lng }
+          : { lat: null, lng: null };
+      }
 
       settings = await Settings.create({
         createdBy: userId,
@@ -53,6 +58,9 @@ exports.upsertSettings = async (req, res) => {
     settings.gpsRadius = gpsRadius ?? settings.gpsRadius;
     if (workingDays) settings.workingDays = workingDays;
     if (timezone) settings.timezone = timezone;
+    if (req.body.workplaceLocation) {
+      settings.workplaceLocation = req.body.workplaceLocation;
+    }
 
     await settings.save();
 
@@ -74,15 +82,19 @@ exports.upsertSettings = async (req, res) => {
 
 exports.getSettings = async (req, res) => {
   try {
-    const settings = await Settings.findOne({
+    let settings = await Settings.findOne({
       createdBy: req.user.id
     });
 
     if (!settings) {
-      return res.status(200).json({
-        success: true,
-        data: null,
-        message: "No settings configured yet"
+      const user = await User.findById(req.user.id);
+      const workplaceLocation = user?.position
+        ? { lat: user.position.lat, lng: user.position.lng }
+        : { lat: null, lng: null };
+
+      settings = await Settings.create({
+        createdBy: req.user.id,
+        workplaceLocation
       });
     }
 

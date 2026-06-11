@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Attendance = require("../models/Attendance");
 const Member = require("../models/Member");
 const Settings = require("../models/Settings");
+const User = require("../models/User");
 
 
 function getAttendanceDay(date, timezone) {
@@ -58,32 +59,43 @@ function calculateDistance(lat1, lng1, lat2, lng2) {
 
 async function loadSettings(userId) {
   try {
-    const settings = await Settings.findOne({ createdBy: userId });
-    if (settings) {
-      return {
-        morningStart: settings.morningStart || "08:00",
-        morningEnd: settings.morningEnd || "12:00",
-        afternoonStart: settings.afternoonStart || "14:00",
-        afternoonEnd: settings.afternoonEnd || "18:00",
-        lateToleranceMinutes: settings.lateToleranceMinutes ?? 15,
-        gpsRadius: settings.gpsRadius ?? 100,
-        workplaceLocation: settings.workplaceLocation || { lat: null, lng: null },
-        timezone: settings.timezone || "Africa/Tunis",
-        workingDays: settings.workingDays || ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-      };
+    let settings = await Settings.findOne({ createdBy: userId });
+    if (!settings) {
+      const user = await User.findById(userId);
+      const workplaceLocation = user?.position
+        ? { lat: user.position.lat, lng: user.position.lng }
+        : { lat: null, lng: null };
+
+      settings = await Settings.create({
+        createdBy: userId,
+        workplaceLocation
+      });
     }
-  } catch (_) {}
-  return {
-    morningStart: "08:00",
-    morningEnd: "12:00",
-    afternoonStart: "14:00",
-    afternoonEnd: "18:00",
-    lateToleranceMinutes: 15,
-    gpsRadius: 100,
-    workplaceLocation: { lat: null, lng: null },
-    timezone: "Africa/Tunis",
-    workingDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-  };
+
+    return {
+      morningStart: settings.morningStart || "08:00",
+      morningEnd: settings.morningEnd || "12:00",
+      afternoonStart: settings.afternoonStart || "14:00",
+      afternoonEnd: settings.afternoonEnd || "18:00",
+      lateToleranceMinutes: settings.lateToleranceMinutes ?? 15,
+      gpsRadius: settings.gpsRadius ?? 100,
+      workplaceLocation: settings.workplaceLocation || { lat: null, lng: null },
+      timezone: settings.timezone || "Africa/Tunis",
+      workingDays: settings.workingDays || ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    };
+  } catch (_) {
+    return {
+      morningStart: "08:00",
+      morningEnd: "12:00",
+      afternoonStart: "14:00",
+      afternoonEnd: "18:00",
+      lateToleranceMinutes: 15,
+      gpsRadius: 100,
+      workplaceLocation: { lat: null, lng: null },
+      timezone: "Africa/Tunis",
+      workingDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    };
+  }
 }
 
 function computeStatus(checkInTime, session, config) {

@@ -8,6 +8,7 @@ import '../services/settings_service.dart';
 import '../../../shared/notifiers/settings_notifier.dart';
 import '../../../shared/widgets/loading_indicator.dart';
 import '../../../theme/app_colors.dart';
+import '../../auth/services/location_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -121,6 +122,110 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: AppColors.error,
       ),
     );
+  }
+
+  Future<void> _editWorkplaceLocation() async {
+    if (_settings == null) return;
+    final loc = _settings!.workplaceLocation;
+    final latController = TextEditingController(
+      text: loc.lat?.toStringAsFixed(6) ?? '',
+    );
+    final lngController = TextEditingController(
+      text: loc.lng?.toStringAsFixed(6) ?? '',
+    );
+
+    double? newLat;
+    double? newLng;
+    final outerContext = context;
+
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Workplace Location'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: latController,
+                decoration: const InputDecoration(
+                  labelText: 'Latitude',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: lngController,
+                decoration: const InputDecoration(
+                  labelText: 'Longitude',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    try {
+                      final pos = await LocationService().getCurrentLocation();
+                      latController.text = pos.latitude.toStringAsFixed(6);
+                      lngController.text = pos.longitude.toStringAsFixed(6);
+                    } catch (e) {
+                      if (ctx.mounted) {
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          SnackBar(content: Text('Failed to get location: $e')),
+                        );
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.my_location),
+                  label: const Text('Use my current location'),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final lat = double.tryParse(latController.text);
+              final lng = double.tryParse(lngController.text);
+              if (lat == null || lng == null) {
+                ScaffoldMessenger.of(ctx).showSnackBar(
+                  const SnackBar(content: Text('Invalid coordinates')),
+                );
+                return;
+              }
+              newLat = lat;
+              newLng = lng;
+              Navigator.pop(ctx, true);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+
+    if (saved == true && newLat != null && newLng != null) {
+      setState(() {
+        _settings = _settings!.copyWith(
+          workplaceLocation: WorkplaceLocation(lat: newLat, lng: newLng),
+        );
+      });
+      ScaffoldMessenger.of(outerContext).showSnackBar(
+        const SnackBar(
+          content: Text('Workplace location updated. Save settings to persist.'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   Future<void> _pickTime(String current, ValueChanged<String> onPicked) async {
@@ -497,6 +602,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: _editWorkplaceLocation,
+                  icon: const Icon(Icons.edit, size: 16),
+                  label: const Text('Edit'),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -593,24 +704,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
             const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.amber.shade50,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.lock_outline, size: 16, color: Colors.amber.shade700),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Read-only. Set from your account registration GPS position.',
-                      style: TextStyle(fontSize: 12, color: Colors.amber.shade800),
-                    ),
+            Row(
+              children: [
+                Icon(Icons.info_outline, size: 16, color: Colors.grey.shade500),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Click Edit to change the workplace location used for GPS check-in validation.',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
