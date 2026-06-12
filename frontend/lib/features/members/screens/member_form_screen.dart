@@ -16,7 +16,7 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nomController = TextEditingController();
   final _prenomController = TextEditingController();
-  final _emailController = TextEditingController();
+  final _cinController = TextEditingController();
   final _telephoneController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _service = MemberService();
@@ -30,7 +30,7 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
     if (widget.member != null) {
       _nomController.text = widget.member!.nom;
       _prenomController.text = widget.member!.prenom;
-      _emailController.text = widget.member!.email;
+      _cinController.text = widget.member!.cin;
       _telephoneController.text = widget.member!.telephone;
       _descriptionController.text = widget.member!.description;
     }
@@ -40,7 +40,7 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
   void dispose() {
     _nomController.dispose();
     _prenomController.dispose();
-    _emailController.dispose();
+    _cinController.dispose();
     _telephoneController.dispose();
     _descriptionController.dispose();
     super.dispose();
@@ -58,7 +58,7 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
           widget.member!.id,
           nom: _nomController.text.trim(),
           prenom: _prenomController.text.trim(),
-          email: _emailController.text.trim(),
+          cin: _cinController.text.trim(),
           telephone: _telephoneController.text.trim(),
           description: description,
         );
@@ -66,7 +66,7 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
         await _service.createMember(
           nom: _nomController.text.trim(),
           prenom: _prenomController.text.trim(),
-          email: _emailController.text.trim(),
+          cin: _cinController.text.trim(),
           telephone: _telephoneController.text.trim(),
           description: description,
         );
@@ -161,17 +161,13 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
                       ),
                       const SizedBox(height: 16),
                       _Field(
-                        controller: _emailController,
-                        label: 'Email',
-                        icon: Icons.email_outlined,
-                        keyboardType: TextInputType.emailAddress,
+                        controller: _cinController,
+                        label: 'CIN',
+                        icon: Icons.badge_outlined,
+                        keyboardType: TextInputType.text,
                         validator: (v) {
                           if (v == null || v.trim().isEmpty) {
-                            return 'Email required';
-                          }
-                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
-                              .hasMatch(v.trim())) {
-                            return 'Invalid email';
+                            return 'CIN required';
                           }
                           return null;
                         },

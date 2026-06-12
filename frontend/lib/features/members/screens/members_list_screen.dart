@@ -187,7 +187,7 @@ class _MembersListScreenState extends State<MembersListScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      member.email,
+                      member.cin,
                       style:
                           TextStyle(fontSize: 13, color: Colors.grey.shade500),
                     ),

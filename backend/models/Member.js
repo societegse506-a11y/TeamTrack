@@ -8,10 +8,10 @@ const memberSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    email: {
+    cin: {
       type: String,
+      required: true,
       trim: true,
-      lowercase: true,
     },
     telephone: {
       type: String,

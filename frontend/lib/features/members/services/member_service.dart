@@ -33,14 +33,14 @@ class MemberService {
   Future<Member> createMember({
     required String nom,
     required String prenom,
-    required String email,
+    required String cin,
     required String telephone,
     String description = '',
   }) async {
     final response = await ApiClient.post(_prefix, body: {
       'nom': nom,
       'prenom': prenom,
-      'email': email,
+      'cin': cin,
       'telephone': telephone,
       if (description.isNotEmpty) 'description': description,
     });
@@ -52,14 +52,14 @@ class MemberService {
   Future<Member> updateMember(String id, {
     required String nom,
     required String prenom,
-    required String email,
+    required String cin,
     required String telephone,
     String? description,
   }) async {
     final body = <String, dynamic>{
       'nom': nom,
       'prenom': prenom,
-      'email': email,
+      'cin': cin,
       'telephone': telephone,
     };
     if (description != null) body['description'] = description;

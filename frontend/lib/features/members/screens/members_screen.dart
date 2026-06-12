@@ -78,7 +78,7 @@ class _MembersScreenState extends State<MembersScreen> {
       _filteredMembers = _allMembers.where((m) {
         if (query.isNotEmpty &&
             !m.fullName.toLowerCase().contains(query) &&
-            !m.email.toLowerCase().contains(query) &&
+            !m.cin.toLowerCase().contains(query) &&
             !m.telephone.contains(query)) {
           return false;
         }

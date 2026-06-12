@@ -101,14 +101,14 @@ class MemberCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            Icon(Icons.email_outlined,
+                            Icon(Icons.badge_outlined,
                                 size: 12, color: Colors.grey.shade500),
                             const SizedBox(width: 4),
                             Flexible(
                               child: Text(
-                                member.email.isNotEmpty
-                                    ? member.email
-                                    : 'No email',
+                                member.cin.isNotEmpty
+                                    ? member.cin
+                                    : 'No CIN',
                                 style: TextStyle(
                                     fontSize: 12, color: Colors.grey.shade500),
                                 overflow: TextOverflow.ellipsis,

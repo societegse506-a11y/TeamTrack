@@ -2,7 +2,7 @@ class Member {
   final String id;
   final String nom;
   final String prenom;
-  final String email;
+  final String cin;
   final String telephone;
   final String description;
 
@@ -10,7 +10,7 @@ class Member {
     required this.id,
     required this.nom,
     required this.prenom,
-    required this.email,
+    required this.cin,
     required this.telephone,
     this.description = '',
   });
@@ -20,7 +20,7 @@ class Member {
       id: json['_id'] ?? json['id'] ?? '',
       nom: json['nom'] ?? '',
       prenom: json['prenom'] ?? '',
-      email: json['email'] ?? '',
+      cin: json['cin'] ?? '',
       telephone: json['telephone'] ?? '',
       description: json['description'] ?? '',
     );
@@ -30,7 +30,7 @@ class Member {
     return {
       'nom': nom,
       'prenom': prenom,
-      'email': email,
+      'cin': cin,
       'telephone': telephone,
       'description': description,
     };

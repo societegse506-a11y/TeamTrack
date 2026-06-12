@@ -3,12 +3,12 @@ const Attendance = require("../models/Attendance");
 
 exports.createMember = async (req, res) => {
   try {
-    const { nom, prenom, email, telephone } = req.body;
+    const { nom, prenom, cin, telephone } = req.body;
 
     const member = await Member.create({
       nom,
       prenom,
-      email,
+      cin,
       telephone,
       createdBy: req.user.id
     });
@@ -111,7 +111,7 @@ exports.deleteMember = async (req, res) => {
 exports.updateMember = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nom, prenom, email, telephone } = req.body;
+    const { nom, prenom, cin, telephone } = req.body;
 
     const member = await Member.findOne({
       _id: id,
@@ -127,7 +127,7 @@ exports.updateMember = async (req, res) => {
 
     member.nom = nom || member.nom;
     member.prenom = prenom || member.prenom;
-    member.email = email != null ? email : member.email;
+    member.cin = cin != null ? cin : member.cin;
     member.telephone = telephone || member.telephone;
 
     await member.save();

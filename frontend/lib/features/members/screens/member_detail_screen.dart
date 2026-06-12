@@ -314,10 +314,10 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
             ),
             const SizedBox(height: 16),
             _DetailRow(
-              icon: Icons.email_outlined,
-              label: 'Email',
-              value: _member.email.isNotEmpty
-                  ? _member.email
+              icon: Icons.badge_outlined,
+              label: 'CIN',
+              value: _member.cin.isNotEmpty
+                  ? _member.cin
                   : 'Not provided',
             ),
             const Divider(height: 24),
