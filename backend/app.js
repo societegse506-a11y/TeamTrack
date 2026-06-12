@@ -9,6 +9,7 @@ const memberRoutes = require("./routes/member.routes");
 const settingsRoutes = require("./routes/settings.routes");
 const statisticsRoutes = require("./routes/statistics.routes");
 const attendanceRoutes = require("./routes/attendance.routes");
+const adminRoutes = require("./routes/admin.routes");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use("/api/members", memberRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/statistics", statisticsRoutes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/admin", adminRoutes);
 
 // ===============================
 // HEALTH CHECK (BONNE PRATIQUE)

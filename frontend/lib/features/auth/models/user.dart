@@ -4,6 +4,8 @@ class User {
   final String prenom;
   final String email;
   final String telephone;
+  final String role;
+  final bool isActive;
   final double? lat;
   final double? lng;
 
@@ -13,9 +15,13 @@ class User {
     required this.prenom,
     required this.email,
     required this.telephone,
+    this.role = 'user',
+    this.isActive = true,
     this.lat,
     this.lng,
   });
+
+  bool get isAdmin => role == 'admin';
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
@@ -24,6 +30,8 @@ class User {
       prenom: json['prenom'] ?? '',
       email: json['email'] ?? '',
       telephone: json['telephone'] ?? '',
+      role: json['role'] ?? 'user',
+      isActive: json['isActive'] ?? true,
       lat: json['position']?['lat'],
       lng: json['position']?['lng'],
     );
@@ -35,6 +43,8 @@ class User {
       'prenom': prenom,
       'email': email,
       'telephone': telephone,
+      'role': role,
+      'isActive': isActive,
     };
   }
 }

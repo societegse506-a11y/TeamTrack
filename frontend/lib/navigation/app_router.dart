@@ -10,6 +10,7 @@ import '../features/members/screens/members_screen.dart';
 import '../features/settings/screens/settings_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/profile/screens/edit_profile_screen.dart';
+import '../features/admin/screens/users_management_screen.dart';
 import 'shell_scaffold.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -82,6 +83,15 @@ final GoRouter appRouter = GoRouter(
               path: '/settings',
               pageBuilder: (context, state) =>
                   _fadePage(const SettingsScreen(), state),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/admin/users',
+              pageBuilder: (context, state) =>
+                  _fadePage(const UsersManagementScreen(), state),
             ),
           ],
         ),

@@ -7,9 +7,11 @@ class AuthNotifier extends ChangeNotifier {
   static AuthNotifier get instance => _instance;
 
   bool _isAuthenticated = false;
+  bool _isAdmin = false;
   bool _initialized = false;
 
   bool get isAuthenticated => _isAuthenticated;
+  bool get isAdmin => _isAdmin;
   bool get initialized => _initialized;
 
   AuthNotifier._();
@@ -28,8 +30,10 @@ class AuthNotifier extends ChangeNotifier {
 
   Future<void> _checkAuth() async {
     final authed = await ApiClient.isLoggedIn();
-    if (authed != _isAuthenticated || !_initialized) {
+    final admin = authed ? await ApiClient.isAdmin() : false;
+    if (authed != _isAuthenticated || admin != _isAdmin || !_initialized) {
       _isAuthenticated = authed;
+      _isAdmin = admin;
       notifyListeners();
     }
   }

@@ -13,6 +13,10 @@ class ApiService {
     final data = _parseResponse(response);
     if (data['token'] != null) {
       await ApiClient.saveToken(data['token']);
+      final userData = data['data'] as Map<String, dynamic>?;
+      if (userData != null && userData['role'] != null) {
+        await ApiClient.saveRole(userData['role'] as String);
+      }
     }
     return data;
   }

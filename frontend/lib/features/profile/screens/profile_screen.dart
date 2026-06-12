@@ -17,6 +17,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _name = '';
   String _email = '';
   String _phone = '';
+  String _role = '';
+  bool _isActive = true;
   @override
   void initState() {
     super.initState();
@@ -34,6 +36,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _name = '$prenom $nom';
           _email = data['email'] ?? '';
           _phone = data['telephone'] ?? '';
+          _role = data['role'] ?? '';
+          _isActive = data['isActive'] ?? true;
         });
       }
     } catch (_) {}
@@ -122,6 +126,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       fontSize: 14,
                     ),
                   ),
+                  if (_role == 'admin') ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(30),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.shield, size: 14, color: Colors.white),
+                          SizedBox(width: 4),
+                          Text(
+                            'Admin',
+                            style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

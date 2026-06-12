@@ -62,6 +62,8 @@ exports.register = async (req, res) => {
         prenom: newUser.prenom,
         email: newUser.email,
         telephone: newUser.telephone,
+        role: newUser.role,
+        isActive: newUser.isActive,
         position: newUser.position
       }
     });
@@ -91,6 +93,13 @@ exports.login = async (req, res) => {
       });
     }
 
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: "Account is deactivated. Contact administrator."
+      });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(400).json({
@@ -100,7 +109,7 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id },
+      { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -115,6 +124,8 @@ exports.login = async (req, res) => {
         prenom: user.prenom,
         email: user.email,
         telephone: user.telephone,
+        role: user.role,
+        isActive: user.isActive,
         position: user.position
       }
     });
@@ -172,6 +183,8 @@ exports.updateProfile = async (req, res) => {
         prenom: user.prenom,
         email: user.email,
         telephone: user.telephone,
+        role: user.role,
+        isActive: user.isActive,
         position: user.position
       }
     });

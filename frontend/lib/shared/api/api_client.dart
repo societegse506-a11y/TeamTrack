@@ -4,10 +4,11 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
- static String baseUrl = 'https://teamtrack-9otq.onrender.com/api';
- //static String baseUrl = 'https://21d2-102-159-21-193.ngrok-free.app/api';
-  
+  static String baseUrl = 'https://teamtrack-9otq.onrender.com/api';
+  //static String baseUrl = 'https://21d2-102-159-21-193.ngrok-free.app/api';
+   
   static const String _tokenKey = 'jwt_token';
+  static const String _roleKey = 'user_role';
   static const Duration defaultTimeout = Duration(seconds: 10);
   static const Duration longTimeout = Duration(seconds: 15);
 
@@ -24,11 +25,27 @@ class ApiClient {
   static Future<void> clearToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
+    await prefs.remove(_roleKey);
   }
 
   static Future<bool> isLoggedIn() async {
     final token = await getToken();
     return token != null && token.isNotEmpty;
+  }
+
+  static Future<void> saveRole(String role) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_roleKey, role);
+  }
+
+  static Future<String?> getRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_roleKey);
+  }
+
+  static Future<bool> isAdmin() async {
+    final role = await getRole();
+    return role == 'admin';
   }
 
   static Future<Map<String, String>> authHeaders() async {
