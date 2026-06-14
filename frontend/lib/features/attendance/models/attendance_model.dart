@@ -1,6 +1,6 @@
 import '../../members/models/member.dart';
 
-enum AttendanceStatus { notChecked, present, late, outsideZone }
+enum AttendanceStatus { notChecked, present, late, absent, outsideZone }
 
 class MemberAttendance {
   final Member member;
@@ -67,6 +67,8 @@ class AttendanceRecord {
         return AttendanceStatus.present;
       case 'late':
         return AttendanceStatus.late;
+      case 'absent':
+        return AttendanceStatus.absent;
       case 'outside_zone':
         return AttendanceStatus.outsideZone;
       default:
@@ -96,6 +98,8 @@ class CheckInResult {
         return AttendanceStatus.present;
       case 'late':
         return AttendanceStatus.late;
+      case 'absent':
+        return AttendanceStatus.absent;
       case 'outside_zone':
         return AttendanceStatus.outsideZone;
       default:

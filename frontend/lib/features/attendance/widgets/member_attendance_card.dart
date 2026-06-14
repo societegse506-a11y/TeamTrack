@@ -144,7 +144,7 @@ class MemberAttendanceCard extends StatelessWidget {
   }
 
   bool get _isCheckedIn =>
-      status == AttendanceStatus.present || status == AttendanceStatus.late;
+      status == AttendanceStatus.present || status == AttendanceStatus.late || status == AttendanceStatus.absent;
 
   Color get _statusColor {
     switch (status) {
@@ -152,6 +152,8 @@ class MemberAttendanceCard extends StatelessWidget {
         return AppColors.success;
       case AttendanceStatus.late:
         return AppColors.warning;
+      case AttendanceStatus.absent:
+        return AppColors.error;
       case AttendanceStatus.outsideZone:
         return AppColors.error;
       case AttendanceStatus.notChecked:
@@ -165,6 +167,8 @@ class MemberAttendanceCard extends StatelessWidget {
         return 'Present';
       case AttendanceStatus.late:
         return 'Late';
+      case AttendanceStatus.absent:
+        return 'Absent';
       case AttendanceStatus.outsideZone:
         return 'Outside Zone';
       case AttendanceStatus.notChecked:

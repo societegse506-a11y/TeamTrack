@@ -416,6 +416,8 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
 
                     final morningStatus = _getStatusForDay(day, 'morning');
                     final afternoonStatus = _getStatusForDay(day, 'afternoon');
+                    final dayDate = DateTime(_currentYear, _currentMonth, day);
+                    final isFutureDay = dayDate.isAfter(now);
 
                     return Expanded(
                       child: Container(
@@ -448,11 +450,13 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
                                   _SessionDot(
                                     label: 'A',
                                     status: morningStatus,
+                                    isFuture: isFutureDay,
                                   ),
                                   const SizedBox(width: 3),
                                   _SessionDot(
                                     label: 'P',
                                     status: afternoonStatus,
+                                    isFuture: isFutureDay,
                                   ),
                                 ],
                               ),
@@ -488,8 +492,6 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
           _LegendItem(color: AppColors.warning, label: 'Late'),
           const SizedBox(width: 12),
           _LegendItem(color: AppColors.error, label: 'Absent'),
-          const SizedBox(width: 12),
-          _LegendItem(color: Colors.grey.shade300, label: 'No data'),
         ],
       ),
     );
@@ -520,8 +522,9 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
         final statusColor = switch (rec.attendanceStatus) {
           AttendanceStatus.present => AppColors.success,
           AttendanceStatus.late => AppColors.warning,
+          AttendanceStatus.absent => AppColors.error,
           AttendanceStatus.outsideZone => AppColors.error,
-          AttendanceStatus.notChecked => Colors.grey,
+          AttendanceStatus.notChecked => AppColors.error,
         };
 
         final sessionLabel = rec.session == 'morning' ? 'AM' : 'PM';
@@ -688,17 +691,23 @@ class _DetailRow extends StatelessWidget {
 class _SessionDot extends StatelessWidget {
   final String label;
   final AttendanceStatus? status;
+  final bool isFuture;
 
-  const _SessionDot({required this.label, this.status});
+  const _SessionDot({
+    required this.label,
+    this.status,
+    this.isFuture = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final color = switch (status) {
       AttendanceStatus.present => AppColors.success,
       AttendanceStatus.late => AppColors.warning,
+      AttendanceStatus.absent => AppColors.error,
       AttendanceStatus.outsideZone => AppColors.error,
-      null => Colors.grey.shade300,
-      AttendanceStatus.notChecked => Colors.grey.shade300,
+      AttendanceStatus.notChecked => isFuture ? Colors.grey.shade300 : AppColors.error,
+      null => isFuture ? Colors.grey.shade300 : AppColors.error,
     };
 
     return Container(

@@ -3,6 +3,7 @@ import '../services/admin_service.dart';
 import '../../../theme/app_colors.dart';
 import '../../auth/models/user.dart';
 import '../../members/models/member.dart';
+import '../../members/screens/member_detail_screen.dart';
 
 class TeamMembersScreen extends StatefulWidget {
   const TeamMembersScreen({super.key});
@@ -235,51 +236,69 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
   Widget _buildMemberTile(Member member, bool isSmall) {
     return Padding(
       padding: EdgeInsets.only(bottom: isSmall ? 6 : 8),
-      child: Row(
-        children: [
-          Container(
-            width: isSmall ? 28 : 32,
-            height: isSmall ? 28 : 32,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withAlpha(15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: Text(
-                member.initials,
-                style: TextStyle(
-                  fontSize: isSmall ? 10 : 11,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primary.withAlpha(180),
-                ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MemberDetailScreen(member: member),
               ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Row(
               children: [
-                Text(
-                  member.fullName,
-                  style: TextStyle(
-                    fontSize: isSmall ? 13 : 14,
-                    fontWeight: FontWeight.w500,
+                Container(
+                  width: isSmall ? 28 : 32,
+                  height: isSmall ? 28 : 32,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withAlpha(15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      member.initials,
+                      style: TextStyle(
+                        fontSize: isSmall ? 10 : 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary.withAlpha(180),
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 1),
-                Text(
-                  'CIN: ${member.cin}  ·  ${member.telephone}',
-                  style: TextStyle(
-                    fontSize: isSmall ? 10 : 11,
-                    color: Colors.grey.shade500,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        member.fullName,
+                        style: TextStyle(
+                          fontSize: isSmall ? 13 : 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 1),
+                      Text(
+                        'CIN: ${member.cin}  ·  ${member.telephone}',
+                        style: TextStyle(
+                          fontSize: isSmall ? 10 : 11,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                Icon(Icons.chevron_right, size: 18, color: Colors.grey.shade400),
               ],
             ),
           ),
-          Icon(Icons.chevron_right, size: 18, color: Colors.grey.shade400),
-        ],
+        ),
       ),
     );
   }
