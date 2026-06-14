@@ -22,6 +22,9 @@ router.get("/member/:memberId", auth, attendanceController.getMemberAttendances)
 // Member attendance list (all time, for detail list)
 router.get("/member/:memberId/list", auth, attendanceController.getMemberAttendanceList);
 
+// Generate absences for today (mark members without check-in as absent)
+router.post("/generate-absences", auth, attendanceController.generateAbsencesForToday);
+
 // Liste générale
 router.get("/", auth, attendanceController.getAttendances);
 

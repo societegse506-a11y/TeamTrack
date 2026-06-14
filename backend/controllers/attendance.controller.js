@@ -330,16 +330,28 @@ exports.getTodayStats = async (req, res) => {
 
     let morningPresent = 0;
     let morningLate = 0;
+    let morningAbsent = 0;
+    let morningOutside = 0;
     let afternoonPresent = 0;
     let afternoonLate = 0;
+    let afternoonAbsent = 0;
+    let afternoonOutside = 0;
 
     for (const rec of records) {
       if (rec.session === "morning") {
-        if (rec.status === "late") morningLate++;
-        else if (rec.status === "present") morningPresent++;
+        switch (rec.status) {
+          case "present": morningPresent++; break;
+          case "late": morningLate++; break;
+          case "absent": morningAbsent++; break;
+          case "outside_zone": morningOutside++; break;
+        }
       } else if (rec.session === "afternoon") {
-        if (rec.status === "late") afternoonLate++;
-        else if (rec.status === "present") afternoonPresent++;
+        switch (rec.status) {
+          case "present": afternoonPresent++; break;
+          case "late": afternoonLate++; break;
+          case "absent": afternoonAbsent++; break;
+          case "outside_zone": afternoonOutside++; break;
+        }
       }
     }
 
@@ -349,8 +361,12 @@ exports.getTodayStats = async (req, res) => {
         totalMembers: members,
         morningPresent,
         morningLate,
+        morningAbsent,
+        morningOutside,
         afternoonPresent,
-        afternoonLate
+        afternoonLate,
+        afternoonAbsent,
+        afternoonOutside,
       }
     });
 
@@ -388,16 +404,18 @@ exports.getDashboardStats = async (req, res) => {
           _id: null,
           present: { $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] } },
           late: { $sum: { $cond: [{ $eq: ["$status", "late"] }, 1, 0] } },
+          absent: { $sum: { $cond: [{ $eq: ["$status", "absent"] }, 1, 0] } },
           outside: { $sum: { $cond: [{ $eq: ["$status", "outside_zone"] }, 1, 0] } },
         }
       }
     ]);
 
-    const stats = aggregation[0] || { present: 0, late: 0, outside: 0 };
+    const stats = aggregation[0] || { present: 0, late: 0, absent: 0, outside: 0 };
     const totalPresent = stats.present;
     const totalLate = stats.late;
+    const totalAbsent = stats.absent;
     const totalOutside = stats.outside;
-    const totalRecords = totalPresent + totalLate + totalOutside;
+    const totalRecords = totalPresent + totalLate + totalAbsent + totalOutside;
 
     // 3. Monthly breakdown via aggregation
     const monthlyAgg = await Attendance.aggregate([
@@ -412,7 +430,7 @@ exports.getDashboardStats = async (req, res) => {
           _id: { $substrCP: ["$attendanceDay", 0, 7] },
           present: { $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] } },
           late: { $sum: { $cond: [{ $eq: ["$status", "late"] }, 1, 0] } },
-          absent: { $sum: { $cond: [{ $eq: ["$status", "outside_zone"] }, 1, 0] } },
+          absent: { $sum: { $cond: [{ $or: [{ $eq: ["$status", "absent"] }, { $eq: ["$status", "outside_zone"] }] }, 1, 0] } },
           total: { $sum: 1 },
         }
       },
@@ -442,7 +460,7 @@ exports.getDashboardStats = async (req, res) => {
           _id: "$member",
           present: { $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] } },
           late: { $sum: { $cond: [{ $eq: ["$status", "late"] }, 1, 0] } },
-          absent: { $sum: { $cond: [{ $eq: ["$status", "outside_zone"] }, 1, 0] } },
+          absent: { $sum: { $cond: [{ $or: [{ $eq: ["$status", "absent"] }, { $eq: ["$status", "outside_zone"] }] }, 1, 0] } },
           total: { $sum: 1 },
         }
       },
@@ -478,16 +496,24 @@ exports.getDashboardStats = async (req, res) => {
       member: { $in: activeMemberIds },
     });
 
-    let todayMorningPresent = 0, todayMorningLate = 0;
-    let todayAfternoonPresent = 0, todayAfternoonLate = 0;
+    let todayMorningPresent = 0, todayMorningLate = 0, todayMorningAbsent = 0, todayMorningOutside = 0;
+    let todayAfternoonPresent = 0, todayAfternoonLate = 0, todayAfternoonAbsent = 0, todayAfternoonOutside = 0;
 
     for (const rec of todayRecords) {
       if (rec.session === "morning") {
-        if (rec.status === "late") todayMorningLate++;
-        else if (rec.status === "present") todayMorningPresent++;
+        switch (rec.status) {
+          case "present": todayMorningPresent++; break;
+          case "late": todayMorningLate++; break;
+          case "absent": todayMorningAbsent++; break;
+          case "outside_zone": todayMorningOutside++; break;
+        }
       } else if (rec.session === "afternoon") {
-        if (rec.status === "late") todayAfternoonLate++;
-        else if (rec.status === "present") todayAfternoonPresent++;
+        switch (rec.status) {
+          case "present": todayAfternoonPresent++; break;
+          case "late": todayAfternoonLate++; break;
+          case "absent": todayAfternoonAbsent++; break;
+          case "outside_zone": todayAfternoonOutside++; break;
+        }
       }
     }
 
@@ -505,8 +531,13 @@ exports.getDashboardStats = async (req, res) => {
       ? Math.min(100, (totalLate / totalRecords) * 100)
       : 0;
 
+    const totalAbsences = totalAbsent + totalOutside;
     const outsideRate = totalRecords > 0
-      ? Math.min(100, (totalOutside / totalRecords) * 100)
+      ? Math.min(100, (totalAbsences / totalRecords) * 100)
+      : 0;
+
+    const absentRate = totalRecords > 0
+      ? Math.min(100, (totalAbsences / totalRecords) * 100)
       : 0;
 
     return res.status(200).json({
@@ -517,18 +548,24 @@ exports.getDashboardStats = async (req, res) => {
         overallRate: Math.round(overallRate * 10) / 10,
         lateRate: Math.round(lateRate * 10) / 10,
         outsideRate: Math.round(outsideRate * 10) / 10,
+        absentRate: Math.round(absentRate * 10) / 10,
 
         today: {
           morningPresent: todayMorningPresent,
           morningLate: todayMorningLate,
+          morningAbsent: todayMorningAbsent,
+          morningOutside: todayMorningOutside,
           afternoonPresent: todayAfternoonPresent,
           afternoonLate: todayAfternoonLate,
+          afternoonAbsent: todayAfternoonAbsent,
+          afternoonOutside: todayAfternoonOutside,
         },
 
         totals: {
           present: totalPresent,
           late: totalLate,
-          absent: totalOutside,
+          absent: totalAbsent + totalOutside,
+          outside: totalOutside,
           records: totalRecords,
         },
 
@@ -638,6 +675,72 @@ exports.getMemberAttendanceList = async (req, res) => {
     });
 
   } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// ===============================
+// GENERATE ABSENCES FOR TODAY'S SESSIONS
+// ===============================
+exports.generateAbsencesForToday = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const config = await loadSettings(userId);
+    const now = new Date();
+    const todayStr = getAttendanceDay(now, config.timezone);
+
+    const members = await Member.find({ createdBy: userId }).select("_id");
+    const memberIds = members.map(m => m._id);
+
+    if (memberIds.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No members found to mark absent",
+        created: 0
+      });
+    }
+
+    const sessions = ["morning", "afternoon"];
+    let created = 0;
+
+    for (const session of sessions) {
+      const existingRecords = await Attendance.find({
+        createdBy: userId,
+        attendanceDay: todayStr,
+        session,
+      }).select("member");
+
+      const checkedInIds = new Set(existingRecords.map(r => r.member.toString()));
+      const absentMemberIds = memberIds.filter(id => !checkedInIds.has(id.toString()));
+
+      if (absentMemberIds.length === 0) continue;
+
+      const absentDocs = absentMemberIds.map(memberId => ({
+        member: memberId,
+        createdBy: userId,
+        date: now,
+        attendanceDay: todayStr,
+        session,
+        status: "absent",
+        checkInTime: null,
+        location: { lat: null, lng: null },
+      }));
+
+      await Attendance.insertMany(absentDocs, { ordered: false });
+      created += absentDocs.length;
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: `${created} absence(s) recorded for today`,
+      created
+    });
+
+  } catch (error) {
+    console.error("=== GENERATE ABSENCES ERROR ===", error);
     return res.status(500).json({
       success: false,
       message: error.message

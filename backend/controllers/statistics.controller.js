@@ -23,30 +23,44 @@ async function loadSettings(userId) {
 function computeStatsForRecords(records) {
   let morningPresent = 0;
   let morningLate = 0;
+  let morningAbsent = 0;
+  let morningOutside = 0;
   let afternoonPresent = 0;
   let afternoonLate = 0;
-  let totalDays = 0;
+  let afternoonAbsent = 0;
+  let afternoonOutside = 0;
 
   for (const rec of records) {
     if (rec.session === "morning") {
-      if (rec.status === "present") morningPresent++;
-      else if (rec.status === "late") morningLate++;
+      switch (rec.status) {
+        case "present": morningPresent++; break;
+        case "late": morningLate++; break;
+        case "absent": morningAbsent++; break;
+        case "outside_zone": morningOutside++; break;
+      }
     } else if (rec.session === "afternoon") {
-      if (rec.status === "present") afternoonPresent++;
-      else if (rec.status === "late") afternoonLate++;
+      switch (rec.status) {
+        case "present": afternoonPresent++; break;
+        case "late": afternoonLate++; break;
+        case "absent": afternoonAbsent++; break;
+        case "outside_zone": afternoonOutside++; break;
+      }
     }
   }
 
-  // Total unique days = max(morning records, afternoon records)
-  const morningCount = morningPresent + morningLate;
-  const afternoonCount = afternoonPresent + afternoonLate;
-  totalDays = Math.max(morningCount, afternoonCount);
+  const morningCount = morningPresent + morningLate + morningAbsent + morningOutside;
+  const afternoonCount = afternoonPresent + afternoonLate + afternoonAbsent + afternoonOutside;
+  const totalDays = Math.max(morningCount, afternoonCount);
 
   return {
     morningPresent,
     morningLate,
+    morningAbsent,
+    morningOutside,
     afternoonPresent,
     afternoonLate,
+    afternoonAbsent,
+    afternoonOutside,
     totalDays
   };
 }
@@ -69,6 +83,10 @@ exports.getAllStatistics = async (req, res) => {
       });
 
       const stats = computeStatsForRecords(records);
+      const present = stats.morningPresent + stats.afternoonPresent;
+      const late = stats.morningLate + stats.afternoonLate;
+      const absent = stats.morningAbsent + stats.morningOutside + stats.afternoonAbsent + stats.afternoonOutside;
+      const total = stats.totalDays * 2;
 
       results.push({
         member: {
@@ -76,7 +94,12 @@ exports.getAllStatistics = async (req, res) => {
           nom: member.nom,
           prenom: member.prenom
         },
-        stats
+        stats,
+        present,
+        late,
+        absent,
+        total,
+        rate: total > 0 ? Math.min(100, (present / total) * 100) : 0,
       });
     }
 
@@ -121,6 +144,10 @@ exports.getMemberStatistics = async (req, res) => {
     });
 
     const stats = computeStatsForRecords(records);
+    const present = stats.morningPresent + stats.afternoonPresent;
+    const late = stats.morningLate + stats.afternoonLate;
+    const absent = stats.morningAbsent + stats.morningOutside + stats.afternoonAbsent + stats.afternoonOutside;
+    const total = stats.totalDays * 2;
 
     return res.status(200).json({
       success: true,
@@ -130,7 +157,12 @@ exports.getMemberStatistics = async (req, res) => {
           nom: member.nom,
           prenom: member.prenom
         },
-        stats
+        stats,
+        present,
+        late,
+        absent,
+        total,
+        rate: total > 0 ? Math.min(100, (present / total) * 100) : 0,
       }
     });
 
