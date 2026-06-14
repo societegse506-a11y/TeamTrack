@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Member = require("../models/Member");
 const bcrypt = require("bcrypt");
 
 exports.getUsers = async (req, res) => {
@@ -69,6 +70,30 @@ exports.deleteUser = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
     return res.status(200).json({ success: true, message: "User deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
+exports.getUsersWithMembers = async (req, res) => {
+  try {
+    const users = await User.find({ role: 'user' }).select('-password -resetToken -resetTokenExpire');
+
+    const usersWithMembers = await Promise.all(
+      users.map(async (user) => {
+        const members = await Member.find({ createdBy: user._id });
+        return {
+          ...user.toObject(),
+          members
+        };
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      count: usersWithMembers.length,
+      data: usersWithMembers
+    });
   } catch (error) {
     return res.status(500).json({ success: false, message: "Server error", error: error.message });
   }

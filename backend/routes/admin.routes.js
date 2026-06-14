@@ -8,6 +8,7 @@ const adminMiddleware = require("../middlewares/admin.middleware");
 router.use(authMiddleware, adminMiddleware);
 
 router.get("/users", admin.getUsers);
+router.get("/team-members", admin.getUsersWithMembers);
 router.get("/users/:id", admin.getUserById);
 router.put("/users/:id", admin.updateUser);
 router.delete("/users/:id", admin.deleteUser);

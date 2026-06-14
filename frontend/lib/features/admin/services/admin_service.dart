@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../../../shared/api/api_client.dart';
 import '../../auth/models/user.dart';
+import '../models/team_leader.dart';
 
 class AdminService {
   static const _prefix = '/admin';
@@ -39,6 +40,13 @@ class AdminService {
   Future<void> deleteUser(String id) async {
     final response = await ApiClient.delete('$_prefix/users/$id');
     _handleResponse(response);
+  }
+
+  Future<List<TeamLeaderWithMembers>> getUsersWithMembers() async {
+    final response = await ApiClient.get('$_prefix/team-members');
+    final data = _handleResponse(response);
+    final List<dynamic> list = data['data'] ?? [];
+    return list.map((e) => TeamLeaderWithMembers.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<void> toggleActive(String id) async {

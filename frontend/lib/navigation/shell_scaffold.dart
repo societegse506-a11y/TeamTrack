@@ -48,6 +48,12 @@ class ScaffoldWithNavBar extends StatelessWidget {
           selectedIcon: Icon(Icons.admin_panel_settings),
           label: 'Admin',
         ),
+      if (isAdmin)
+        const NavigationDestination(
+          icon: Icon(Icons.groups_outlined),
+          selectedIcon: Icon(Icons.groups),
+          label: 'Teams',
+        ),
     ];
 
     return Scaffold(
